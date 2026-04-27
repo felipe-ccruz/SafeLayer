@@ -3,7 +3,7 @@ spring:
     name: BackVM
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/vmmanager
+    url: jdbc:postgresql://localhost:5433/vmmanager
     username: vmuser
     password: vmpass
     driver-class-name: org.postgresql.Driver
