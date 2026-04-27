@@ -6,6 +6,7 @@ import com.felp.backvm.domain.enums.VmProfile;
 import com.felp.backvm.domain.enums.VmStatus;
 import com.felp.backvm.dto.CreateVmRequest;
 import com.felp.backvm.dto.VirtualMachineDTO;
+import com.felp.backvm.exception.VmNotFoundException;
 import com.felp.backvm.repository.VirtualMachineRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,43 @@ public class VirtualMachineService {
                 .build();
 
         return toDto(repository.save(vm));
+    }
+
+    public VirtualMachineDTO start(Long id) {
+        VirtualMachine vm = findOrThrow(id);
+        if (vm.getStatus() == VmStatus.RUNNING) {
+            throw new IllegalStateException("VM já está rodando");
+        }
+        vm.setStatus(VmStatus.RUNNING);
+        return toDto(repository.save(vm));
+    }
+
+    public VirtualMachineDTO pause(Long id) {
+        VirtualMachine vm = findOrThrow(id);
+        if (vm.getStatus() != VmStatus.RUNNING) {
+            throw new IllegalStateException("VM precisa estar rodando para ser pausada");
+        }
+        vm.setStatus(VmStatus.PAUSED);
+        return toDto(repository.save(vm));
+    }
+
+    public VirtualMachineDTO stop(Long id) {
+        VirtualMachine vm = findOrThrow(id);
+        if (vm.getStatus() == VmStatus.STOPPED) {
+            throw new IllegalStateException("VM já está parada");
+        }
+        vm.setStatus(VmStatus.STOPPED);
+        return toDto(repository.save(vm));
+    }
+
+    public void delete(Long id) {
+        VirtualMachine vm = findOrThrow(id);
+        repository.delete(vm);
+    }
+
+    private VirtualMachine findOrThrow(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new VmNotFoundException(id));
     }
 
     private VirtualMachineDTO toDto(VirtualMachine vm) {
