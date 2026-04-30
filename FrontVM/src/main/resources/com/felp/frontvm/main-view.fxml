@@ -8,51 +8,90 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.felp.frontvm.MainController"
-            prefWidth="900" prefHeight="600"
-            style="-fx-background-color: #1a1a2e;">
+            prefWidth="1200" prefHeight="720"
+            style="-fx-background-color: #f8fafc;">
 
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="10"
-              style="-fx-background-color: #1a1a2e;">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
+        <VBox style="-fx-background-color: #ffffff; -fx-border-color: transparent transparent #e2e8f0 transparent; -fx-border-width: 0 0 1 0;">
             <children>
-                <Label text="VM Manager"
-                       style="-fx-text-fill: #ffffff; -fx-font-size: 24px; -fx-font-weight: bold;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnNovaVm" text="＋ Nova VM"
-                        style="-fx-background-color: #e94560; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <padding>
+                        <Insets top="16" right="32" bottom="16" left="32"/>
+                    </padding>
+                    <children>
+                        <StackPane fx:id="logoBox"
+                                   style="-fx-background-color: #0f172a; -fx-background-radius: 12;"
+                                   prefWidth="40" prefHeight="40" minWidth="40" minHeight="40"/>
+                        <VBox spacing="2">
+                            <children>
+                                <Label text="Minhas VMs"
+                                       style="-fx-text-fill: #0f172a; -fx-font-size: 15px; -fx-font-weight: bold;"/>
+                                <Label fx:id="lblContador" text="0 máquinas"
+                                       style="-fx-text-fill: #64748b; -fx-font-size: 12px;"/>
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnNovaVm"
+                                style="-fx-background-color: #0f172a; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 10 16 10 16; -fx-background-radius: 12; -fx-cursor: hand;"
+                                contentDisplay="LEFT" graphicTextGap="8"
+                                text="Nova VM"/>
+                    </children>
+                </HBox>
             </children>
-        </HBox>
+        </VBox>
     </top>
 
     <center>
         <ScrollPane fitToWidth="true"
-                    style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                    style="-fx-background: #f8fafc; -fx-background-color: transparent; -fx-border-color: transparent;">
             <content>
-                <FlowPane fx:id="flowPaneVms" hgap="20" vgap="20"
-                          style="-fx-background-color: transparent;">
-                    <padding>
-                        <Insets top="20" right="20" bottom="20" left="20"/>
-                    </padding>
-                </FlowPane>
+                <StackPane fx:id="centerContainer">
+                    <children>
+                        <FlowPane fx:id="flowPaneVms" hgap="20" vgap="20"
+                                  style="-fx-background-color: transparent;">
+                            <padding>
+                                <Insets top="24" right="32" bottom="24" left="32"/>
+                            </padding>
+                        </FlowPane>
+                        <VBox fx:id="emptyState" alignment="CENTER" spacing="14" visible="false" managed="false">
+                            <padding>
+                                <Insets top="80" right="32" bottom="80" left="32"/>
+                            </padding>
+                            <children>
+                                <StackPane fx:id="emptyIconBox"
+                                           style="-fx-background-color: #f1f5f9; -fx-background-radius: 18;"
+                                           prefWidth="72" prefHeight="72" minWidth="72" minHeight="72"/>
+                                <Label text="Nenhuma VM por aqui"
+                                       style="-fx-text-fill: #0f172a; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                <Label text="Crie sua primeira máquina virtual em poucos cliques."
+                                       style="-fx-text-fill: #64748b; -fx-font-size: 13px;"/>
+                                <Button fx:id="btnNovaVmEmpty"
+                                        style="-fx-background-color: #0f172a; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 12 20 12 20; -fx-background-radius: 12; -fx-cursor: hand;"
+                                        contentDisplay="LEFT" graphicTextGap="8"
+                                        text="Criar VM"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </StackPane>
             </content>
         </ScrollPane>
     </center>
 
     <bottom>
-        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #0f3460;">
+        <HBox alignment="CENTER_LEFT"
+              style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0 transparent transparent transparent; -fx-border-width: 1 0 0 0;">
             <padding>
-                <Insets top="10" right="20" bottom="10" left="20"/>
+                <Insets top="8" right="32" bottom="8" left="32"/>
             </padding>
             <children>
                 <Label fx:id="lblStatus" text="Pronto"
-                       style="-fx-text-fill: #ffffff; -fx-font-size: 12px;"/>
+                       style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
             </children>
         </HBox>
     </bottom>

@@ -15,7 +15,7 @@ public class MainApp extends Application {
         Parent root = loader.load();
 
         stage.setTitle("VM Manager");
-        stage.setScene(new Scene(root, 900, 600));
+        stage.setScene(new Scene(root, 1200, 720));
         stage.show();
     }
 

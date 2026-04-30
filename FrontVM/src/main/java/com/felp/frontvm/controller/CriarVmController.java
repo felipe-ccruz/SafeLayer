@@ -2,56 +2,104 @@ package com.felp.frontvm.controller;
 
 import com.felp.frontvm.model.VmModel;
 import com.felp.frontvm.service.VmApiService;
+import com.felp.frontvm.ui.LucideIcons;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class CriarVmController {
 
-    private static final String ESTILO_BASE =
-            "-fx-background-color: #16213e;" +
-            "-fx-background-radius: 8;" +
+    private static final String BORDER_NORMAL = "#e2e8f0";
+    private static final String BORDER_SELECTED = "#0f172a";
+
+    private static final String OS_CARD_BASE =
+            "-fx-background-color: #ffffff;" +
+            "-fx-background-radius: 14;" +
             "-fx-padding: 12;" +
-            "-fx-cursor: hand;";
+            "-fx-cursor: hand;" +
+            "-fx-border-width: 2;" +
+            "-fx-border-radius: 14;";
 
-    private static final String BORDA_NORMAL =
-            "-fx-border-color: #0f3460; -fx-border-width: 1; -fx-border-radius: 8;";
-
-    private static final String BORDA_SELECIONADA =
-            "-fx-border-color: #e94560; -fx-border-width: 2; -fx-border-radius: 8;";
+    private static final String PROFILE_CARD_BASE =
+            "-fx-background-color: #ffffff;" +
+            "-fx-background-radius: 12;" +
+            "-fx-padding: 10 14 10 14;" +
+            "-fx-cursor: hand;" +
+            "-fx-border-width: 2;" +
+            "-fx-border-radius: 12;";
 
     @FXML private TextField txtNome;
-    @FXML private RadioButton rbWindows10;
-    @FXML private RadioButton rbWindows11;
+    @FXML private VBox cardOsWin10;
+    @FXML private VBox cardOsWin11;
+    @FXML private StackPane previewWin10;
+    @FXML private StackPane previewWin11;
     @FXML private HBox cardWeak;
     @FXML private HBox cardMedium;
     @FXML private HBox cardStrong;
     @FXML private Button btnCriar;
     @FXML private Button btnCancelar;
+    @FXML private Button btnFechar;
 
+    private String osSelecionado = "WINDOWS_10";
     private String perfilSelecionado = "WEAK";
     private final VmApiService vmApiService = new VmApiService();
 
     @FXML
     public void initialize() {
-        cardWeak.setOnMouseClicked(e -> selecionarPerfil("WEAK", cardWeak));
-        cardMedium.setOnMouseClicked(e -> selecionarPerfil("MEDIUM", cardMedium));
-        cardStrong.setOnMouseClicked(e -> selecionarPerfil("STRONG", cardStrong));
+        btnFechar.setGraphic(LucideIcons.x(18, Color.web("#94a3b8")));
 
-        selecionarPerfil("WEAK", cardWeak);
+        cardOsWin10.setOnMouseClicked(e -> selecionarOs("WINDOWS_10"));
+        cardOsWin11.setOnMouseClicked(e -> selecionarOs("WINDOWS_11"));
+
+        cardWeak.setOnMouseClicked(e -> selecionarPerfil("WEAK"));
+        cardMedium.setOnMouseClicked(e -> selecionarPerfil("MEDIUM"));
+        cardStrong.setOnMouseClicked(e -> selecionarPerfil("STRONG"));
+
+        selecionarOs("WINDOWS_10");
+        selecionarPerfil("WEAK");
     }
 
-    private void selecionarPerfil(String perfil, HBox cardSelecionado) {
+    private void selecionarOs(String os) {
+        osSelecionado = os;
+        boolean win10 = "WINDOWS_10".equals(os);
+
+        cardOsWin10.setStyle(OS_CARD_BASE + "-fx-border-color: " + (win10 ? BORDER_SELECTED : BORDER_NORMAL) + ";");
+        cardOsWin11.setStyle(OS_CARD_BASE + "-fx-border-color: " + (!win10 ? BORDER_SELECTED : BORDER_NORMAL) + ";");
+
+        atualizarCheckMark(previewWin10, win10);
+        atualizarCheckMark(previewWin11, !win10);
+    }
+
+    private void atualizarCheckMark(StackPane preview, boolean show) {
+        preview.getChildren().removeIf(node -> "check-mark".equals(node.getId()));
+        if (!show) return;
+
+        StackPane mark = new StackPane(LucideIcons.check(12, Color.WHITE));
+        mark.setId("check-mark");
+        mark.setPrefSize(22, 22);
+        mark.setMinSize(22, 22);
+        mark.setMaxSize(22, 22);
+        mark.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 999;");
+        StackPane.setAlignment(mark, Pos.TOP_RIGHT);
+        StackPane.setMargin(mark, new javafx.geometry.Insets(6, 6, 0, 0));
+        preview.getChildren().add(mark);
+    }
+
+    private void selecionarPerfil(String perfil) {
         perfilSelecionado = perfil;
-        cardWeak.setStyle(ESTILO_BASE + BORDA_NORMAL);
-        cardMedium.setStyle(ESTILO_BASE + BORDA_NORMAL);
-        cardStrong.setStyle(ESTILO_BASE + BORDA_NORMAL);
-        cardSelecionado.setStyle(ESTILO_BASE + BORDA_SELECIONADA);
+        cardWeak.setStyle(PROFILE_CARD_BASE + "-fx-border-color: " + ("WEAK".equals(perfil) ? BORDER_SELECTED : BORDER_NORMAL) + ";");
+        cardMedium.setStyle(PROFILE_CARD_BASE + "-fx-border-color: " + ("MEDIUM".equals(perfil) ? BORDER_SELECTED : BORDER_NORMAL) + ";");
+        cardStrong.setStyle(PROFILE_CARD_BASE + "-fx-border-color: " + ("STRONG".equals(perfil) ? BORDER_SELECTED : BORDER_NORMAL) + ";");
     }
 
     @FXML
@@ -62,13 +110,11 @@ public class CriarVmController {
             return;
         }
 
-        String osType = rbWindows10.isSelected() ? "WINDOWS_10" : "WINDOWS_11";
-
         btnCriar.setDisable(true);
         btnCancelar.setDisable(true);
 
         new Thread(() -> {
-            VmModel created = vmApiService.create(nome, osType, perfilSelecionado);
+            VmModel created = vmApiService.create(nome, osSelecionado, perfilSelecionado);
             Platform.runLater(() -> {
                 if (created != null) {
                     fecharJanela();

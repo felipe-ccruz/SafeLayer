@@ -3,87 +3,133 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.felp.frontvm.controller.CriarVmController"
-      prefWidth="420" prefHeight="480"
-      spacing="16"
-      style="-fx-background-color: #1a1a2e;">
-
-    <padding>
-        <Insets top="30" right="30" bottom="30" left="30"/>
-    </padding>
-
-    <fx:define>
-        <ToggleGroup fx:id="osGroup"/>
-    </fx:define>
+      prefWidth="460" prefHeight="620"
+      spacing="0"
+      style="-fx-background-color: #ffffff;">
 
     <children>
-        <Label text="Nova Máquina Virtual"
-               style="-fx-text-fill: #ffffff; -fx-font-size: 18px; -fx-font-weight: bold;"/>
-
-        <Separator/>
-
-        <Label text="Nome da VM"
-               style="-fx-text-fill: #a0a0b0; -fx-font-size: 12px;"/>
-        <TextField fx:id="txtNome" promptText="Ex: Minha VM"
-                   style="-fx-background-color: #16213e; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6c6c80; -fx-border-color: #0f3460; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8;"/>
-
-        <Label text="Sistema Operacional"
-               style="-fx-text-fill: #a0a0b0; -fx-font-size: 12px;"/>
-        <HBox spacing="20">
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <padding>
+                <Insets top="20" right="20" bottom="8" left="24"/>
+            </padding>
             <children>
-                <RadioButton fx:id="rbWindows10" text="Windows 10" toggleGroup="$osGroup" selected="true"
-                             style="-fx-text-fill: #ffffff;"/>
-                <RadioButton fx:id="rbWindows11" text="Windows 11" toggleGroup="$osGroup"
-                             style="-fx-text-fill: #ffffff;"/>
+                <Label text="Nova máquina virtual"
+                       style="-fx-text-fill: #0f172a; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnFechar"
+                        style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 6; -fx-background-radius: 999;"
+                        onAction="#handleCancelar"/>
             </children>
         </HBox>
 
-        <Label text="Perfil de Hardware"
-               style="-fx-text-fill: #a0a0b0; -fx-font-size: 12px;"/>
-        <VBox spacing="8">
+        <VBox spacing="18">
+            <padding>
+                <Insets top="12" right="24" bottom="16" left="24"/>
+            </padding>
             <children>
-                <HBox fx:id="cardWeak"
-                      style="-fx-background-color: #16213e; -fx-border-color: #0f3460; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 12; -fx-cursor: hand;">
+                <VBox spacing="8">
                     <children>
-                        <Label text="🔴 Fraco   — 2 CPU | 4GB RAM | 60GB disco"
-                               style="-fx-text-fill: #ffffff; -fx-font-size: 12px;"/>
+                        <Label text="Nome"
+                               style="-fx-text-fill: #475569; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                        <TextField fx:id="txtNome" promptText="Minha VM"
+                                   style="-fx-background-color: #ffffff; -fx-text-fill: #0f172a; -fx-prompt-text-fill: #94a3b8; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 14 10 14; -fx-font-size: 13px;"/>
                     </children>
-                </HBox>
-                <HBox fx:id="cardMedium"
-                      style="-fx-background-color: #16213e; -fx-border-color: #0f3460; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 12; -fx-cursor: hand;">
+                </VBox>
+
+                <VBox spacing="8">
                     <children>
-                        <Label text="🟡 Médio   — 4 CPU | 8GB RAM | 100GB disco"
-                               style="-fx-text-fill: #ffffff; -fx-font-size: 12px;"/>
+                        <Label text="Sistema"
+                               style="-fx-text-fill: #475569; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                        <HBox spacing="12">
+                            <children>
+                                <VBox fx:id="cardOsWin10" spacing="10" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 2; -fx-border-radius: 14; -fx-background-radius: 14; -fx-padding: 12; -fx-cursor: hand;">
+                                    <children>
+                                        <StackPane fx:id="previewWin10" prefHeight="80"
+                                                   style="-fx-background-color: linear-gradient(to bottom right, #38bdf8, #2563eb); -fx-background-radius: 8;"/>
+                                        <Label text="Windows 10"
+                                               style="-fx-text-fill: #0f172a; -fx-font-size: 13px;"/>
+                                    </children>
+                                </VBox>
+                                <VBox fx:id="cardOsWin11" spacing="10" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 2; -fx-border-radius: 14; -fx-background-radius: 14; -fx-padding: 12; -fx-cursor: hand;">
+                                    <children>
+                                        <StackPane fx:id="previewWin11" prefHeight="80"
+                                                   style="-fx-background-color: linear-gradient(to bottom right, #818cf8, #9333ea); -fx-background-radius: 8;"/>
+                                        <Label text="Windows 11"
+                                               style="-fx-text-fill: #0f172a; -fx-font-size: 13px;"/>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
                     </children>
-                </HBox>
-                <HBox fx:id="cardStrong"
-                      style="-fx-background-color: #16213e; -fx-border-color: #0f3460; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 12; -fx-cursor: hand;">
+                </VBox>
+
+                <VBox spacing="8">
                     <children>
-                        <Label text="🟢 Forte   — 8 CPU | 16GB RAM | 200GB disco"
-                               style="-fx-text-fill: #ffffff; -fx-font-size: 12px;"/>
+                        <Label text="Perfil de hardware"
+                               style="-fx-text-fill: #475569; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                        <VBox spacing="8">
+                            <children>
+                                <HBox fx:id="cardWeak" alignment="CENTER_LEFT" spacing="10"
+                                      style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 2; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 14 10 14; -fx-cursor: hand;">
+                                    <children>
+                                        <Label text="Fraco"
+                                               style="-fx-text-fill: #0f172a; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="2 CPU · 4 GB · 60 GB"
+                                               style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
+                                    </children>
+                                </HBox>
+                                <HBox fx:id="cardMedium" alignment="CENTER_LEFT" spacing="10"
+                                      style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 2; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 14 10 14; -fx-cursor: hand;">
+                                    <children>
+                                        <Label text="Médio"
+                                               style="-fx-text-fill: #0f172a; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="4 CPU · 8 GB · 100 GB"
+                                               style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
+                                    </children>
+                                </HBox>
+                                <HBox fx:id="cardStrong" alignment="CENTER_LEFT" spacing="10"
+                                      style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 2; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 14 10 14; -fx-cursor: hand;">
+                                    <children>
+                                        <Label text="Forte"
+                                               style="-fx-text-fill: #0f172a; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Label text="8 CPU · 16 GB · 200 GB"
+                                               style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
                     </children>
-                </HBox>
+                </VBox>
             </children>
         </VBox>
 
         <Region VBox.vgrow="ALWAYS"/>
 
-        <HBox spacing="12" alignment="CENTER_RIGHT">
+        <HBox spacing="10" alignment="CENTER">
+            <padding>
+                <Insets top="8" right="24" bottom="20" left="24"/>
+            </padding>
             <children>
                 <Button fx:id="btnCancelar" text="Cancelar" onAction="#handleCancelar"
-                        style="-fx-background-color: transparent; -fx-text-fill: #a0a0b0; -fx-border-color: #a0a0b0; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 16 8 16; -fx-cursor: hand;"/>
-                <Button fx:id="btnCriar" text="Criar VM" onAction="#handleCriar"
-                        style="-fx-background-color: #e94560; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-padding: 10 24 10 24; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                        HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: #334155; -fx-font-size: 13px; -fx-padding: 12; -fx-background-radius: 12; -fx-cursor: hand;"/>
+                <Button fx:id="btnCriar" text="Criar" onAction="#handleCriar"
+                        HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                        style="-fx-background-color: #0f172a; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 12; -fx-background-radius: 12; -fx-cursor: hand;"/>
             </children>
         </HBox>
     </children>
