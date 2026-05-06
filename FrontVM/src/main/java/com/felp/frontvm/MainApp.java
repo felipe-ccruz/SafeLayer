@@ -1,22 +1,14 @@
 package com.felp.frontvm;
 
+import com.felp.frontvm.session.Navigator;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
     @Override
-    public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(
-                MainApp.class.getResource("main-view.fxml"));
-        Parent root = loader.load();
-
-        stage.setTitle("VM Manager");
-        stage.setScene(new Scene(root, 1200, 720));
-        stage.show();
+    public void start(Stage stage) {
+        Navigator.to(stage, "login-view.fxml", 900, 640, "SimpleVM — Login");
     }
 
     public static void main(String[] args) {

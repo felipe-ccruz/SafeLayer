@@ -1,8 +1,11 @@
 package com.felp.frontvm;
 
 import com.felp.frontvm.controller.VmViewerController;
+import com.felp.frontvm.model.UserModel;
 import com.felp.frontvm.model.VmModel;
 import com.felp.frontvm.service.VmApiService;
+import com.felp.frontvm.session.Navigator;
+import com.felp.frontvm.session.Session;
 import com.felp.frontvm.ui.LucideIcons;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -56,11 +59,14 @@ public class MainController {
     @FXML private Button btnNovaVmEmpty;
     @FXML private Label lblStatus;
     @FXML private Label lblContador;
+    @FXML private Label lblUserNome;
+    @FXML private Label lblUserPlano;
     @FXML private VBox emptyState;
     @FXML private StackPane logoBox;
     @FXML private StackPane emptyIconBox;
 
     private final VmApiService vmApiService = new VmApiService();
+    private int totalVms = 0;
 
     @FXML
     public void initialize() {
@@ -73,7 +79,23 @@ public class MainController {
         btnNovaVm.setOnAction(e -> abrirTelaCriacao());
         btnNovaVmEmpty.setOnAction(e -> abrirTelaCriacao());
 
+        UserModel user = Session.get();
+        if (user == null) {
+            Platform.runLater(() -> {
+                Stage stage = (Stage) logoBox.getScene().getWindow();
+                Navigator.to(stage, "login-view.fxml", 900, 640, "SimpleVM — Login");
+            });
+            return;
+        }
+
+        atualizarUserHeader();
         carregarVms();
+    }
+
+    private void atualizarUserHeader() {
+        UserModel user = Session.get();
+        lblUserNome.setText(user.getName());
+        lblUserPlano.setText("Plano " + user.getPlanLabel());
     }
 
     private void carregarVms() {
@@ -92,7 +114,9 @@ public class MainController {
             for (VmModel vm : vms) {
                 flowPaneVms.getChildren().add(criarCardVm(vm));
             }
-            atualizarContador(vms.size());
+            totalVms = vms.size();
+            atualizarContador(totalVms);
+            atualizarBotaoNova();
             boolean vazio = vms.isEmpty();
             emptyState.setVisible(vazio);
             emptyState.setManaged(vazio);
@@ -107,7 +131,24 @@ public class MainController {
     }
 
     private void atualizarContador(int total) {
-        lblContador.setText(total + (total == 1 ? " máquina" : " máquinas"));
+        UserModel user = Session.get();
+        if (user != null && !user.isUnlimited()) {
+            lblContador.setText(total + "/" + user.getMaxVms() + (user.getMaxVms() == 1 ? " máquina" : " máquinas"));
+        } else {
+            lblContador.setText(total + (total == 1 ? " máquina" : " máquinas"));
+        }
+    }
+
+    private void atualizarBotaoNova() {
+        UserModel user = Session.get();
+        if (user == null) return;
+        boolean noLimite = !user.isUnlimited() && totalVms >= user.getMaxVms();
+        btnNovaVm.setDisable(noLimite);
+        if (noLimite) {
+            btnNovaVm.setOpacity(0.5);
+        } else {
+            btnNovaVm.setOpacity(1.0);
+        }
     }
 
     private VBox criarCardVm(VmModel vm) {
@@ -335,5 +376,18 @@ public class MainController {
             System.err.println("Erro ao abrir viewer: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void abrirPlanos() {
+        Stage stage = (Stage) logoBox.getScene().getWindow();
+        Navigator.to(stage, "plans-view.fxml", 1100, 700, "SimpleVM — Planos");
+    }
+
+    @FXML
+    private void sair() {
+        Session.clear();
+        Stage stage = (Stage) logoBox.getScene().getWindow();
+        Navigator.to(stage, "login-view.fxml", 900, 640, "SimpleVM — Login");
     }
 }

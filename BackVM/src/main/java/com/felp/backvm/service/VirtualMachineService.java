@@ -1,17 +1,19 @@
 package com.felp.backvm.service;
 
+import com.felp.backvm.domain.User;
 import com.felp.backvm.domain.VirtualMachine;
 import com.felp.backvm.domain.enums.OsType;
+import com.felp.backvm.domain.enums.UserPlan;
 import com.felp.backvm.domain.enums.VmProfile;
 import com.felp.backvm.domain.enums.VmStatus;
 import com.felp.backvm.dto.CreateVmRequest;
 import com.felp.backvm.dto.VirtualMachineDTO;
+import com.felp.backvm.exception.PlanLimitException;
 import com.felp.backvm.exception.VmNotFoundException;
 import com.felp.backvm.repository.VirtualMachineRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -23,15 +25,27 @@ public class VirtualMachineService {
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final VirtualMachineRepository repository;
+    private final UserService userService;
 
-    public List<VirtualMachineDTO> findAll() {
-        return repository.findAll().stream()
+    public List<VirtualMachineDTO> findAllByUser(Long userId) {
+        return repository.findByUserId(userId).stream()
                 .map(this::toDto)
                 .toList();
     }
 
-    public VirtualMachineDTO create(CreateVmRequest request) {
+    public VirtualMachineDTO create(Long userId, CreateVmRequest request) {
+        User user = userService.getOrThrow(userId);
+        UserPlan plan = user.getPlan();
         VmProfile profile = request.getProfile();
+
+        if (!plan.allowsProfile(profile)) {
+            throw new PlanLimitException(
+                    "Seu plano (" + plan.getLabel() + ") não permite o perfil " + profile.getLabel());
+        }
+        if (!plan.isUnlimited() && repository.countByUserId(userId) >= plan.getMaxVms()) {
+            throw new PlanLimitException(
+                    "Limite de " + plan.getMaxVms() + " VM(s) atingido para o plano " + plan.getLabel());
+        }
 
         VirtualMachine vm = VirtualMachine.builder()
                 .name(request.getName())
@@ -41,14 +55,14 @@ public class VirtualMachineService {
                 .cpuCores(profile.getCpuCores())
                 .ramGb(profile.getRamGb())
                 .diskGb(profile.getDiskGb())
-                .createdAt(LocalDateTime.now())
+                .userId(userId)
                 .build();
 
         return toDto(repository.save(vm));
     }
 
-    public VirtualMachineDTO start(Long id) {
-        VirtualMachine vm = findOrThrow(id);
+    public VirtualMachineDTO start(Long userId, Long id) {
+        VirtualMachine vm = findOrThrow(userId, id);
         if (vm.getStatus() == VmStatus.RUNNING) {
             throw new IllegalStateException("VM já está rodando");
         }
@@ -56,8 +70,8 @@ public class VirtualMachineService {
         return toDto(repository.save(vm));
     }
 
-    public VirtualMachineDTO pause(Long id) {
-        VirtualMachine vm = findOrThrow(id);
+    public VirtualMachineDTO pause(Long userId, Long id) {
+        VirtualMachine vm = findOrThrow(userId, id);
         if (vm.getStatus() != VmStatus.RUNNING) {
             throw new IllegalStateException("VM precisa estar rodando para ser pausada");
         }
@@ -65,8 +79,8 @@ public class VirtualMachineService {
         return toDto(repository.save(vm));
     }
 
-    public VirtualMachineDTO stop(Long id) {
-        VirtualMachine vm = findOrThrow(id);
+    public VirtualMachineDTO stop(Long userId, Long id) {
+        VirtualMachine vm = findOrThrow(userId, id);
         if (vm.getStatus() == VmStatus.STOPPED) {
             throw new IllegalStateException("VM já está parada");
         }
@@ -74,13 +88,13 @@ public class VirtualMachineService {
         return toDto(repository.save(vm));
     }
 
-    public void delete(Long id) {
-        VirtualMachine vm = findOrThrow(id);
+    public void delete(Long userId, Long id) {
+        VirtualMachine vm = findOrThrow(userId, id);
         repository.delete(vm);
     }
 
-    private VirtualMachine findOrThrow(Long id) {
-        return repository.findById(id)
+    private VirtualMachine findOrThrow(Long userId, Long id) {
+        return repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new VmNotFoundException(id));
     }
 

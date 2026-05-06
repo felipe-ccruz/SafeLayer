@@ -8,8 +8,8 @@ SimpleVM é um simulador acadêmico de gerenciamento de máquinas virtuais com a
 
 ```
 SimpleVM/
-├── BackVM/          # Spring Boot REST API
-├── FrontVM/         # JavaFX Desktop App
+├── BackVM/             # Spring Boot REST API
+├── FrontVM/            # JavaFX Desktop App
 ├── docker-compose.yml  # PostgreSQL 15 (porta 5433)
 └── CLAUDE.md
 ```
@@ -20,37 +20,56 @@ SimpleVM/
 2. `cd BackVM && mvn spring-boot:run` — inicia o backend em localhost:8080
 3. `cd FrontVM && mvn javafx:run` — inicia o frontend JavaFX
 
+## Fluxo do app
+
+1. Login/Cadastro → 2. Tela de Planos → 3. VM Manager
+- Botões "Meu plano" e "Sair" estão presentes em ambas as telas pós-login
+- Cada usuário só vê suas próprias VMs (filtragem via header `X-User-Id`)
+
 ## Backend (BackVM)
 
 **Stack:** Spring Boot 4.0.6, Java 17, JPA/Hibernate, Flyway, PostgreSQL, Lombok
 
 **Pacote raiz:** `com.felp.backvm`
 
-**Endpoints REST** em `/api/vms`:
+**Endpoints REST:**
 
 | Método | Rota | Ação |
 |--------|------|------|
-| GET | `/api/vms` | Listar todas as VMs |
-| POST | `/api/vms` | Criar VM |
+| POST | `/api/users/register` | Cadastro (cria com plano BASIC) |
+| POST | `/api/users/login` | Login |
+| PATCH | `/api/users/{id}/plan` | Mudar plano do usuário |
+| GET | `/api/vms` | Listar VMs do usuário (header `X-User-Id`) |
+| POST | `/api/vms` | Criar VM (valida plano: limite de quantidade e perfis) |
 | PATCH | `/api/vms/{id}/start` | Ligar VM |
 | PATCH | `/api/vms/{id}/pause` | Pausar VM |
 | PATCH | `/api/vms/{id}/stop` | Desligar VM |
 | DELETE | `/api/vms/{id}` | Deletar VM |
 
-**Erros:** 404 para VM não encontrada, 422 para transição de estado inválida (mensagens em português).
+Todos os endpoints de `/api/vms` exigem o header `X-User-Id` com o id do usuário logado. O service filtra por `userId`, então não há vazamento entre contas.
+
+**Erros:**
+- 401 Unauthorized — credenciais inválidas
+- 404 Not Found — VM/usuário não encontrado
+- 409 Conflict — e-mail já cadastrado
+- 422 Unprocessable Entity — transição de estado inválida ou limite de plano excedido
 
 **Estrutura de pacotes:**
-- `controller/` — VirtualMachineController
-- `service/` — VirtualMachineService (lógica de negócio + conversão DTO)
-- `domain/` — VirtualMachine (entidade JPA), enums: VmStatus, VmProfile, OsType
-- `dto/` — CreateVmRequest, VirtualMachineDTO
-- `repository/` — VirtualMachineRepository (JpaRepository)
-- `exception/` — GlobalExceptionHandler, VmNotFoundException
+- `controller/` — VirtualMachineController, UserController
+- `service/` — VirtualMachineService, UserService
+- `domain/` — VirtualMachine, User; enums: VmStatus, VmProfile, OsType, UserPlan
+- `dto/` — CreateVmRequest, VirtualMachineDTO, RegisterRequest, LoginRequest, UserDTO, ChangePlanRequest
+- `repository/` — VirtualMachineRepository, UserRepository
+- `exception/` — GlobalExceptionHandler, VmNotFoundException, UserNotFoundException, InvalidCredentialsException, EmailAlreadyExistsException, PlanLimitException
+- `util/` — PasswordHasher (SHA-256 com salt aleatório por usuário, formato `salt:hash` em base64)
 
 **Banco de dados:**
-- PostgreSQL na porta 5433 (evita conflito com Postgres local na 5432)
+- PostgreSQL na porta 5433
 - DB: `vmmanager`, User: `vmuser`, Pass: `vmpass`
-- Schema gerenciado por Flyway (`V1__create_virtual_machines.sql`)
+- Schema gerenciado por Flyway:
+  - `V1__create_virtual_machines.sql`
+  - `V2__rename_windows_10_to_ubuntu.sql`
+  - `V3__create_users_and_link_vms.sql` — cria tabela `users`, limpa `virtual_machines`, adiciona `user_id NOT NULL` com FK
 
 ## Frontend (FrontVM)
 
@@ -58,21 +77,34 @@ SimpleVM/
 
 **Pacote raiz:** `com.felp.frontvm`
 
-**Telas:**
-- **MainController** + `main-view.fxml` — Grade de VMs (FlowPane), botão criar, ações por card
-- **CriarVmController** + `criar-vm-view.fxml` — Modal de criação (nome, OS, perfil)
-- **VmViewerController** + `vm-viewer-view.fxml` — Visualizador fullscreen com wallpaper simulado
+**Telas (FXMLs em `src/main/resources/com/felp/frontvm/`):**
+- **LoginController** + `login-view.fxml` — Login/Cadastro com toggle (campos extras de nome e confirmação só aparecem no modo cadastro)
+- **PlansController** + `plans-view.fxml` — 3 cards de plano, badge "Plano atual", botão `Comprar` em Standard/Premium e `Voltar ao Basic` para downgrade. Modal de confirmação antes de trocar de plano. Header com "Olá, {nome}", "Plano atual: {plano}", botões "Minhas VMs" e "Sair"
+- **MainController** + `main-view.fxml` — Grade de VMs do usuário; header mostra nome, plano, contador `X/Y`. Botão "Nova VM" desabilita ao atingir o limite. Botões "Meu plano" e "Sair" no header
+- **CriarVmController** + `criar-vm-view.fxml` — Modal: nome, OS (Ubuntu/Windows 11), perfil. Erros do backend (limite de plano, perfil não permitido) viram alertas
+- **VmViewerController** + `vm-viewer-view.fxml` — Visualizador com wallpaper real centralizado quando RUNNING
+
+**Sessão e navegação:**
+- `session/Session.java` — singleton estático que guarda o `UserModel` logado em memória
+- `session/Navigator.java` — `Navigator.to(stage, fxml, w, h, title)` troca a scene da Stage e ajusta tamanho com `sizeToScene()`
+- `service/VmApiService.java` — adiciona automaticamente o header `X-User-Id` lendo de `Session.getUserId()`
+- `service/UserApiService.java` — login, register, changePlan; lança `ApiException(status, msg)` em erros HTTP
 
 **Padrões de UI:**
-- CSS inline (sem folhas de estilo externas)
+- CSS inline
 - Ícones SVG via `LucideIcons.java` (lucide.dev)
 - Operações assíncronas com `new Thread(...).start()` + `Platform.runLater()`
-- Cards coloridos: Windows 10 = azul, Windows 11 = roxo
+- Cards coloridos: Ubuntu = laranja, Windows 11 = roxo
 - Status: verde (RUNNING), âmbar (PAUSED), cinza (STOPPED)
 
 **Configuração:** `ApiConfig.java` define `BASE_URL = "http://localhost:8080"`
 
 ## Domínio
+
+**UserPlan:**
+- `BASIC` (grátis) — até 1 VM, perfil WEAK apenas
+- `STANDARD` (R$ 19,90/mês) — até 3 VMs, perfis WEAK e MEDIUM
+- `PREMIUM` (R$ 49,90/mês) — VMs ilimitadas, todos os perfis
 
 **VmStatus:** `RUNNING`, `PAUSED`, `STOPPED`
 
@@ -96,6 +128,7 @@ SimpleVM/
 - **Sessão 4** — Correção de bugs
 - **Sessão 5** — Telas JavaFX (Main, CriarVM, VmViewer)
 - **Sessão 6** — Substituição de Windows 10 por Ubuntu, wallpapers reais centralizados no viewer
+- **Sessão 7** — Cadastro/login + planos (Basic/Standard/Premium), confirmação fictícia de compra, filtragem de VMs por usuário
 
 ## Convenções
 
@@ -103,3 +136,4 @@ SimpleVM/
 - Não rodar comandos no terminal — apenas entregar código; o usuário executa mvn/docker/git
 - Sem comentários desnecessários no código
 - Lombok para reduzir boilerplate (@Data, @Builder, @RequiredArgsConstructor)
+- Sem Spring Security: hash de senha próprio com SHA-256 + salt aleatório (`util/PasswordHasher.java`)

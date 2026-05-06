@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 
 public class VmViewerController {
 
-    private static final String UBUNTU_IMAGE = "/com/felp/frontvm/images/ubuntu.jpeg";
+    private static final String UBUNTU_IMAGE = "/com/felp/frontvm/images/ubuntu.jpg";
     private static final String WIN11_IMAGE = "/com/felp/frontvm/images/windows-11.jpg";
 
     private static final double SCREEN_WIDTH = 900;

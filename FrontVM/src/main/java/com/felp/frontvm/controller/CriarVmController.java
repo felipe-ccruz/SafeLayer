@@ -3,6 +3,7 @@ package com.felp.frontvm.controller;
 import com.felp.frontvm.model.VmModel;
 import com.felp.frontvm.service.VmApiService;
 import com.felp.frontvm.ui.LucideIcons;
+import com.felp.frontvm.session.Session;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -110,20 +111,33 @@ public class CriarVmController {
             return;
         }
 
+        if (Session.get() == null) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Sessão expirada. Faça login novamente.");
+            return;
+        }
+
         btnCriar.setDisable(true);
         btnCancelar.setDisable(true);
 
         new Thread(() -> {
-            VmModel created = vmApiService.create(nome, osSelecionado, perfilSelecionado);
-            Platform.runLater(() -> {
-                if (created != null) {
-                    fecharJanela();
-                } else {
+            try {
+                VmModel created = vmApiService.create(nome, osSelecionado, perfilSelecionado);
+                Platform.runLater(() -> {
+                    if (created != null) {
+                        fecharJanela();
+                    } else {
+                        btnCriar.setDisable(false);
+                        btnCancelar.setDisable(false);
+                        mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Erro ao criar VM");
+                    }
+                });
+            } catch (VmApiService.VmApiException e) {
+                Platform.runLater(() -> {
                     btnCriar.setDisable(false);
                     btnCancelar.setDisable(false);
-                    mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Erro ao criar VM");
-                }
-            });
+                    mostrarAlerta(Alert.AlertType.ERROR, "Erro", e.getMessage());
+                });
+            }
         }, "criarVm").start();
     }
 

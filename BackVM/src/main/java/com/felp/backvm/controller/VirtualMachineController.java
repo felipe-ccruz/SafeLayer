@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,41 +24,44 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VirtualMachineController {
 
+    private static final String USER_HEADER = "X-User-Id";
+
     private final VirtualMachineService service;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<VirtualMachineDTO> findAll() {
-        return service.findAll();
+    public List<VirtualMachineDTO> findAll(@RequestHeader(USER_HEADER) Long userId) {
+        return service.findAllByUser(userId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public VirtualMachineDTO create(@RequestBody @Valid CreateVmRequest request) {
-        return service.create(request);
+    public VirtualMachineDTO create(@RequestHeader(USER_HEADER) Long userId,
+                                     @RequestBody @Valid CreateVmRequest request) {
+        return service.create(userId, request);
     }
 
     @PatchMapping("/{id}/start")
     @ResponseStatus(HttpStatus.OK)
-    public VirtualMachineDTO start(@PathVariable Long id) {
-        return service.start(id);
+    public VirtualMachineDTO start(@RequestHeader(USER_HEADER) Long userId, @PathVariable Long id) {
+        return service.start(userId, id);
     }
 
     @PatchMapping("/{id}/pause")
     @ResponseStatus(HttpStatus.OK)
-    public VirtualMachineDTO pause(@PathVariable Long id) {
-        return service.pause(id);
+    public VirtualMachineDTO pause(@RequestHeader(USER_HEADER) Long userId, @PathVariable Long id) {
+        return service.pause(userId, id);
     }
 
     @PatchMapping("/{id}/stop")
     @ResponseStatus(HttpStatus.OK)
-    public VirtualMachineDTO stop(@PathVariable Long id) {
-        return service.stop(id);
+    public VirtualMachineDTO stop(@RequestHeader(USER_HEADER) Long userId, @PathVariable Long id) {
+        return service.stop(userId, id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public void delete(@RequestHeader(USER_HEADER) Long userId, @PathVariable Long id) {
+        service.delete(userId, id);
     }
 }

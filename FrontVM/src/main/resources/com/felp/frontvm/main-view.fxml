@@ -37,6 +37,18 @@
                             </children>
                         </VBox>
                         <Region HBox.hgrow="ALWAYS"/>
+                        <VBox alignment="CENTER_RIGHT" spacing="2">
+                            <children>
+                                <Label fx:id="lblUserNome" text=""
+                                       style="-fx-text-fill: #0f172a; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                                <Label fx:id="lblUserPlano" text=""
+                                       style="-fx-text-fill: #64748b; -fx-font-size: 11px;"/>
+                            </children>
+                        </VBox>
+                        <Button fx:id="btnPlanos" text="Meu plano" onAction="#abrirPlanos"
+                                style="-fx-background-color: #f1f5f9; -fx-text-fill: #0f172a; -fx-font-size: 12px; -fx-padding: 10 14 10 14; -fx-background-radius: 12; -fx-cursor: hand;"/>
+                        <Button fx:id="btnSair" text="Sair" onAction="#sair"
+                                style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-size: 12px; -fx-padding: 10 14 10 14; -fx-background-radius: 12; -fx-cursor: hand;"/>
                         <Button fx:id="btnNovaVm"
                                 style="-fx-background-color: #0f172a; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 10 16 10 16; -fx-background-radius: 12; -fx-cursor: hand;"
                                 contentDisplay="LEFT" graphicTextGap="8"

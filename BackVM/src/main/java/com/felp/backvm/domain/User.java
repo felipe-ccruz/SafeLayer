@@ -1,8 +1,6 @@
 package com.felp.backvm.domain;
 
-import com.felp.backvm.domain.enums.OsType;
-import com.felp.backvm.domain.enums.VmProfile;
-import com.felp.backvm.domain.enums.VmStatus;
+import com.felp.backvm.domain.enums.UserPlan;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,12 +18,12 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "virtual_machines")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VirtualMachine {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,31 +32,17 @@ public class VirtualMachine {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OsType osType;
+    @Column(nullable = false, length = 150, unique = true)
+    private String email;
+
+    @Column(nullable = false, length = 200)
+    private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VmProfile profile;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VmStatus status;
-
-    @Column(nullable = false)
-    private Integer cpuCores;
-
-    @Column(nullable = false)
-    private Integer ramGb;
-
-    @Column(nullable = false)
-    private Integer diskGb;
-
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(nullable = false, length = 20)
+    private UserPlan plan;
 
     @CreationTimestamp
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 }
