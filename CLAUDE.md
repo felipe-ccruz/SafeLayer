@@ -81,7 +81,12 @@ SimpleVM/
 - `MEDIUM`: 4 CPU, 8 GB RAM, 100 GB disco
 - `STRONG`: 8 CPU, 16 GB RAM, 200 GB disco
 
-**OsType:** `WINDOWS_10`, `WINDOWS_11`
+**OsType:** `UBUNTU`, `WINDOWS_11`
+
+**Wallpapers** (exibidos no `VmViewerController` quando a VM está RUNNING):
+- `FrontVM/src/main/resources/com/felp/frontvm/images/ubuntu.jpeg`
+- `FrontVM/src/main/resources/com/felp/frontvm/images/windows-11.jpg`
+- Cards na tela principal continuam usando gradientes (laranja para Ubuntu, roxo para Windows 11)
 
 ## Histórico de sessões
 
@@ -90,6 +95,7 @@ SimpleVM/
 - **Sessão 3** — Endpoints de Ligar, Desligar, Pausar e Deletar
 - **Sessão 4** — Correção de bugs
 - **Sessão 5** — Telas JavaFX (Main, CriarVM, VmViewer)
+- **Sessão 6** — Substituição de Windows 10 por Ubuntu, wallpapers reais centralizados no viewer
 
 ## Convenções
 

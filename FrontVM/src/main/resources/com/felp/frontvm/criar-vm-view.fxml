@@ -51,12 +51,12 @@
                                style="-fx-text-fill: #475569; -fx-font-size: 12px; -fx-font-weight: bold;"/>
                         <HBox spacing="12">
                             <children>
-                                <VBox fx:id="cardOsWin10" spacing="10" HBox.hgrow="ALWAYS"
+                                <VBox fx:id="cardOsUbuntu" spacing="10" HBox.hgrow="ALWAYS"
                                       style="-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 2; -fx-border-radius: 14; -fx-background-radius: 14; -fx-padding: 12; -fx-cursor: hand;">
                                     <children>
-                                        <StackPane fx:id="previewWin10" prefHeight="80"
-                                                   style="-fx-background-color: linear-gradient(to bottom right, #38bdf8, #2563eb); -fx-background-radius: 8;"/>
-                                        <Label text="Windows 10"
+                                        <StackPane fx:id="previewUbuntu" prefHeight="80"
+                                                   style="-fx-background-color: linear-gradient(to bottom right, #fb923c, #c2410c); -fx-background-radius: 8;"/>
+                                        <Label text="Ubuntu"
                                                style="-fx-text-fill: #0f172a; -fx-font-size: 13px;"/>
                                     </children>
                                 </VBox>

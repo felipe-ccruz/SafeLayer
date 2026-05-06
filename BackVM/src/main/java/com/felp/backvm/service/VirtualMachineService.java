@@ -89,7 +89,7 @@ public class VirtualMachineService {
                 .id(vm.getId())
                 .name(vm.getName())
                 .osType(vm.getOsType().name())
-                .osLabel(vm.getOsType() == OsType.WINDOWS_10 ? "Windows 10" : "Windows 11")
+                .osLabel(vm.getOsType() == OsType.UBUNTU ? "Ubuntu" : "Windows 11")
                 .profile(vm.getProfile().name())
                 .profileLabel(vm.getProfile().getLabel())
                 .status(vm.getStatus().name())

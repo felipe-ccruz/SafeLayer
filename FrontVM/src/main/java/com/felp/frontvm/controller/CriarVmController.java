@@ -39,9 +39,9 @@ public class CriarVmController {
             "-fx-border-radius: 12;";
 
     @FXML private TextField txtNome;
-    @FXML private VBox cardOsWin10;
+    @FXML private VBox cardOsUbuntu;
     @FXML private VBox cardOsWin11;
-    @FXML private StackPane previewWin10;
+    @FXML private StackPane previewUbuntu;
     @FXML private StackPane previewWin11;
     @FXML private HBox cardWeak;
     @FXML private HBox cardMedium;
@@ -50,7 +50,7 @@ public class CriarVmController {
     @FXML private Button btnCancelar;
     @FXML private Button btnFechar;
 
-    private String osSelecionado = "WINDOWS_10";
+    private String osSelecionado = "UBUNTU";
     private String perfilSelecionado = "WEAK";
     private final VmApiService vmApiService = new VmApiService();
 
@@ -58,26 +58,26 @@ public class CriarVmController {
     public void initialize() {
         btnFechar.setGraphic(LucideIcons.x(18, Color.web("#94a3b8")));
 
-        cardOsWin10.setOnMouseClicked(e -> selecionarOs("WINDOWS_10"));
+        cardOsUbuntu.setOnMouseClicked(e -> selecionarOs("UBUNTU"));
         cardOsWin11.setOnMouseClicked(e -> selecionarOs("WINDOWS_11"));
 
         cardWeak.setOnMouseClicked(e -> selecionarPerfil("WEAK"));
         cardMedium.setOnMouseClicked(e -> selecionarPerfil("MEDIUM"));
         cardStrong.setOnMouseClicked(e -> selecionarPerfil("STRONG"));
 
-        selecionarOs("WINDOWS_10");
+        selecionarOs("UBUNTU");
         selecionarPerfil("WEAK");
     }
 
     private void selecionarOs(String os) {
         osSelecionado = os;
-        boolean win10 = "WINDOWS_10".equals(os);
+        boolean ubuntu = "UBUNTU".equals(os);
 
-        cardOsWin10.setStyle(OS_CARD_BASE + "-fx-border-color: " + (win10 ? BORDER_SELECTED : BORDER_NORMAL) + ";");
-        cardOsWin11.setStyle(OS_CARD_BASE + "-fx-border-color: " + (!win10 ? BORDER_SELECTED : BORDER_NORMAL) + ";");
+        cardOsUbuntu.setStyle(OS_CARD_BASE + "-fx-border-color: " + (ubuntu ? BORDER_SELECTED : BORDER_NORMAL) + ";");
+        cardOsWin11.setStyle(OS_CARD_BASE + "-fx-border-color: " + (!ubuntu ? BORDER_SELECTED : BORDER_NORMAL) + ";");
 
-        atualizarCheckMark(previewWin10, win10);
-        atualizarCheckMark(previewWin11, !win10);
+        atualizarCheckMark(previewUbuntu, ubuntu);
+        atualizarCheckMark(previewWin11, !ubuntu);
     }
 
     private void atualizarCheckMark(StackPane preview, boolean show) {

@@ -46,8 +46,8 @@ public class MainController {
     private static final String SLATE_100 = "#f1f5f9";
     private static final String AMBER = "#f59e0b";
 
-    private static final String WIN10_GRADIENT =
-            "linear-gradient(to bottom right, #38bdf8, #2563eb)";
+    private static final String UBUNTU_GRADIENT =
+            "linear-gradient(to bottom right, #fb923c, #c2410c)";
     private static final String WIN11_GRADIENT =
             "linear-gradient(to bottom right, #818cf8, #9333ea)";
 
@@ -112,7 +112,7 @@ public class MainController {
 
     private VBox criarCardVm(VmModel vm) {
         boolean isWin11 = "WINDOWS_11".equals(vm.getOsType());
-        String gradient = isWin11 ? WIN11_GRADIENT : WIN10_GRADIENT;
+        String gradient = isWin11 ? WIN11_GRADIENT : UBUNTU_GRADIENT;
         String corStatus = corDoStatus(vm.getStatus());
 
         VBox card = new VBox();
