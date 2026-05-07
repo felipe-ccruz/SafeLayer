@@ -28,6 +28,9 @@
                 <Label fx:id="lblOs" text="·"
                        style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
                 <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnTerminal" text="Abrir terminal" onAction="#abrirTerminal"
+                        managed="false" visible="false"
+                        style="-fx-background-color: rgba(56,189,248,0.18); -fx-text-fill: #7dd3fc; -fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-background-radius: 8; -fx-cursor: hand;"/>
                 <Button fx:id="btnPower" onAction="#handlePower"
                         contentDisplay="LEFT" graphicTextGap="8"
                         style="-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-background-radius: 8; -fx-cursor: hand;"/>

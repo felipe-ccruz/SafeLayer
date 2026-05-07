@@ -6,6 +6,7 @@ import com.felp.frontvm.ui.LucideIcons;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -27,6 +28,7 @@ public class VmViewerController {
     @FXML private Label lblNome;
     @FXML private Label lblOs;
     @FXML private Button btnPower;
+    @FXML private Button btnTerminal;
     @FXML private Button btnFechar;
     @FXML private StackPane screen;
 
@@ -46,6 +48,7 @@ public class VmViewerController {
     private void atualizarUi() {
         boolean running = "RUNNING".equals(vm.getStatus());
         boolean paused = "PAUSED".equals(vm.getStatus());
+        boolean ubuntu = "UBUNTU".equals(vm.getOsType());
 
         lblNome.setText(vm.getName());
         lblOs.setText("· " + vm.getOsLabel());
@@ -53,6 +56,11 @@ public class VmViewerController {
         statusDot.setFill(Color.web(running ? "#10b981" : (paused ? "#f59e0b" : "#64748b")));
 
         atualizarBotaoPower(running);
+
+        boolean mostrarTerminal = ubuntu && running;
+        btnTerminal.setVisible(mostrarTerminal);
+        btnTerminal.setManaged(mostrarTerminal);
+
         atualizarTela(running, paused);
     }
 
@@ -141,6 +149,33 @@ public class VmViewerController {
                 }
             });
         }, "viewerPower").start();
+    }
+
+    @FXML
+    private void abrirTerminal() {
+        String container = "simplevm-" + vm.getId();
+        String script =
+                "echo '== Sistema =='; uname -a; echo; " +
+                "cat /etc/os-release; echo; " +
+                "echo '== Memoria =='; cat /proc/meminfo | head -4; echo; " +
+                "echo '== Disco =='; df -h /; echo; " +
+                "echo '== Container: " + container + " — digite exit para fechar =='; " +
+                "exec bash";
+
+        try {
+            new ProcessBuilder(
+                    "cmd.exe", "/c", "start",
+                    "SimpleVM Terminal",
+                    "docker", "exec", "-it", container,
+                    "bash", "-c", script
+            ).start();
+        } catch (Exception e) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setTitle("Erro");
+            a.setHeaderText(null);
+            a.setContentText("Não foi possível abrir o terminal. Verifique se o Docker Desktop está rodando.\n\nDetalhe: " + e.getMessage());
+            a.showAndWait();
+        }
     }
 
     @FXML

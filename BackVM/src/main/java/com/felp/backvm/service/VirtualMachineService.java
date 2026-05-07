@@ -26,6 +26,7 @@ public class VirtualMachineService {
 
     private final VirtualMachineRepository repository;
     private final UserService userService;
+    private final DockerService dockerService;
 
     public List<VirtualMachineDTO> findAllByUser(Long userId) {
         return repository.findByUserId(userId).stream()
@@ -58,7 +59,13 @@ public class VirtualMachineService {
                 .userId(userId)
                 .build();
 
-        return toDto(repository.save(vm));
+        VirtualMachine saved = repository.save(vm);
+
+        if (saved.getOsType() == OsType.UBUNTU) {
+            dockerService.createContainer(saved.getId());
+        }
+
+        return toDto(saved);
     }
 
     public VirtualMachineDTO start(Long userId, Long id) {
@@ -67,7 +74,13 @@ public class VirtualMachineService {
             throw new IllegalStateException("VM já está rodando");
         }
         vm.setStatus(VmStatus.RUNNING);
-        return toDto(repository.save(vm));
+        VirtualMachine saved = repository.save(vm);
+
+        if (saved.getOsType() == OsType.UBUNTU) {
+            dockerService.startContainer(saved.getId());
+        }
+
+        return toDto(saved);
     }
 
     public VirtualMachineDTO pause(Long userId, Long id) {
@@ -76,7 +89,13 @@ public class VirtualMachineService {
             throw new IllegalStateException("VM precisa estar rodando para ser pausada");
         }
         vm.setStatus(VmStatus.PAUSED);
-        return toDto(repository.save(vm));
+        VirtualMachine saved = repository.save(vm);
+
+        if (saved.getOsType() == OsType.UBUNTU) {
+            dockerService.pauseContainer(saved.getId());
+        }
+
+        return toDto(saved);
     }
 
     public VirtualMachineDTO stop(Long userId, Long id) {
@@ -85,11 +104,20 @@ public class VirtualMachineService {
             throw new IllegalStateException("VM já está parada");
         }
         vm.setStatus(VmStatus.STOPPED);
-        return toDto(repository.save(vm));
+        VirtualMachine saved = repository.save(vm);
+
+        if (saved.getOsType() == OsType.UBUNTU) {
+            dockerService.stopContainer(saved.getId());
+        }
+
+        return toDto(saved);
     }
 
     public void delete(Long userId, Long id) {
         VirtualMachine vm = findOrThrow(userId, id);
+        if (vm.getOsType() == OsType.UBUNTU) {
+            dockerService.removeContainer(vm.getId());
+        }
         repository.delete(vm);
     }
 

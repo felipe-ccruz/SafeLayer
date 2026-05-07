@@ -4,6 +4,8 @@
 
 SimpleVM é um simulador acadêmico de gerenciamento de máquinas virtuais com arquitetura cliente-servidor. Desenvolvido como projeto de NEGÓCIOS DIGITAIS no CESUPA (7° semestre).
 
+VMs Ubuntu **rodam como containers Docker reais** (kernel Linux de verdade) gerenciados pelo backend. VMs Windows 11 continuam como simulação visual apenas.
+
 ## Arquitetura
 
 ```
@@ -56,12 +58,20 @@ Todos os endpoints de `/api/vms` exigem o header `X-User-Id` com o id do usuári
 
 **Estrutura de pacotes:**
 - `controller/` — VirtualMachineController, UserController
-- `service/` — VirtualMachineService, UserService
+- `service/` — VirtualMachineService, UserService, **DockerService** (orquestra containers via CLI do Docker)
 - `domain/` — VirtualMachine, User; enums: VmStatus, VmProfile, OsType, UserPlan
 - `dto/` — CreateVmRequest, VirtualMachineDTO, RegisterRequest, LoginRequest, UserDTO, ChangePlanRequest
 - `repository/` — VirtualMachineRepository, UserRepository
 - `exception/` — GlobalExceptionHandler, VmNotFoundException, UserNotFoundException, InvalidCredentialsException, EmailAlreadyExistsException, PlanLimitException
 - `util/` — PasswordHasher (SHA-256 com salt aleatório por usuário, formato `salt:hash` em base64)
+
+**Integração Docker:**
+- `DockerService` executa `docker` via `ProcessBuilder` (sem shell, sem injection)
+- VMs Ubuntu viram containers `simplevm-{vmId}` baseados na imagem `ubuntu` rodando `sleep infinity`
+- Mapeamento: criar→`docker create`, iniciar→`docker start` (com `unpause` se pausado), pausar→`docker pause`, parar→`docker stop`, deletar→`docker rm -f`
+- VMs Windows 11 não viram containers (continuam só estado no banco)
+- Erros do Docker são logados como warning mas não falham a operação no banco (best effort)
+- Pré-requisito: Docker Desktop rodando + `docker pull ubuntu` feito ao menos uma vez
 
 **Banco de dados:**
 - PostgreSQL na porta 5433
@@ -82,7 +92,7 @@ Todos os endpoints de `/api/vms` exigem o header `X-User-Id` com o id do usuári
 - **PlansController** + `plans-view.fxml` — 3 cards de plano, badge "Plano atual", botão `Comprar` em Standard/Premium e `Voltar ao Basic` para downgrade. Modal de confirmação antes de trocar de plano. Header com "Olá, {nome}", "Plano atual: {plano}", botões "Minhas VMs" e "Sair"
 - **MainController** + `main-view.fxml` — Grade de VMs do usuário; header mostra nome, plano, contador `X/Y`. Botão "Nova VM" desabilita ao atingir o limite. Botões "Meu plano" e "Sair" no header
 - **CriarVmController** + `criar-vm-view.fxml` — Modal: nome, OS (Ubuntu/Windows 11), perfil. Erros do backend (limite de plano, perfil não permitido) viram alertas
-- **VmViewerController** + `vm-viewer-view.fxml` — Visualizador com wallpaper real centralizado quando RUNNING
+- **VmViewerController** + `vm-viewer-view.fxml` — Visualizador com wallpaper real centralizado quando RUNNING. Botão "Abrir terminal" só aparece em VMs Ubuntu RUNNING; ele invoca `cmd.exe /c start docker exec -it simplevm-{id} bash -c "<script de stats>; exec bash"` para abrir uma janela externa do Windows com shell interativo
 
 **Sessão e navegação:**
 - `session/Session.java` — singleton estático que guarda o `UserModel` logado em memória
@@ -129,6 +139,7 @@ Todos os endpoints de `/api/vms` exigem o header `X-User-Id` com o id do usuári
 - **Sessão 5** — Telas JavaFX (Main, CriarVM, VmViewer)
 - **Sessão 6** — Substituição de Windows 10 por Ubuntu, wallpapers reais centralizados no viewer
 - **Sessão 7** — Cadastro/login + planos (Basic/Standard/Premium), confirmação fictícia de compra, filtragem de VMs por usuário
+- **Sessão 8** — Integração com Docker: VMs Ubuntu rodam como containers reais (`simplevm-{id}`), botão "Abrir terminal" no viewer abre PowerShell externo com `docker exec -it ... bash`. README com passo-a-passo de validação fora do app
 
 ## Convenções
 
